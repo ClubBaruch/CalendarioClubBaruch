@@ -71,14 +71,20 @@
 	/* @media (max-width: 520px) { .left, .right { display:none; } } */ 
 
 @media (max-width: 520px) {
+  .left,
+  .right,
+  .logo { 
+    display: none !important; 
+  }
+
   .topbar {
-    grid-template-columns: 1fr;  /* colapsa a una sola columna */
-    gap: 0;                      /* sin espacios laterales del grid */
+    grid-template-columns: 1fr;
+    gap: 0;
   }
   .center {
     justify-self: stretch;       /* asegura que el ítem se estire */
     width: 100%;
-  }
+  }  
 }
 	
 	@media (max-width: 768px) { .logo { height: 56px; } }	
