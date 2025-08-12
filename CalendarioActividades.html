@@ -1,320 +1,363 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Calendario Actividades Club Baruch</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <meta charset="utf-8" />
+  <title>Semanas con actividades (Dom → Sáb)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f4f4;
-      padding: 1rem;
-    }
+    :root { --brand:#06b6d4; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; background:#fafafa; color:#111827; }
 
-    header {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-
-    h1 {
-      margin: 0.5rem 0;
-      color: #0077cc;
-    }
-
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .calendar-picker {
-      font-size: 1rem;
-      max-width: 300px;
-    }
-
-    .controls button {
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-      background-color: #0077cc;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .controls button:hover {
-      background-color: #005fa3;
-    }
-
-    .week-range {
-      text-align: center;
-      font-size: 1.1rem;
-      font-weight: bold;
-      margin: 1rem 0;
-      color: #333;
-    }
-
-    .calendar {
+    /* Topbar con logos, navegación y selector centrado */
+    .topbar {
       display: grid;
-      gap: 1rem;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
     }
+    .left, .right { display:flex; align-items:center; }
+    .left { justify-content:flex-start; }
+    .right { justify-content:flex-end; }
 
-    .day-group {
-      background-color: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-    }
-
-    .date-header {
-      background-color: #0077cc;
-      color: #fff;
-      padding: 0.75rem 1rem;
-      font-weight: bold;
-    }
-
-/* Tarjeta: imagen a la izquierda, texto a la derecha */
-.activity {
+.center {
   display: grid;
-  grid-template-columns: 80px 1fr; /* miniatura | contenido */
-  gap: 1rem;
-  padding: 1rem;
-  border-top: 1px solid #eee;
+  /* 1ª fila: [Anterior] [Etiqueta] [Combo] [Siguiente]  */
+  grid-template-columns: auto auto auto auto;
+  grid-template-rows: auto auto; /* 2ª fila: “Volver a hoy” */
   align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+  padding: 8px 12px;
 }
 
-.activity img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 8px;
+#prevWeek { grid-column: 1; grid-row: 1; }
+.center label[for="weekSelect"] { grid-column: 2; grid-row: 1; justify-self: end; }
+#weekSelect { grid-column: 3; grid-row: 1; }
+#nextWeek { grid-column: 4; grid-row: 1; }
+
+/* Botón “Volver a hoy” en la 2ª fila, centrado y a lo ancho */
+#todayBtn {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  justify-self: center;
+  margin-top: 6px;
 }
 
-/* En móvil: miniatura más pequeña pero sigue a la izquierda */
-@media (max-width: 600px) {
-  .activity {
-    grid-template-columns: 56px 1fr;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-  }
-  .activity img {
-    width: 56px;
-    height: 56px;
-  }
-  .activity-title {
-    font-size: 1rem;
-  }
-  .activity-description {
-    font-size: 0.9rem;
-  }
-}
 
-    .has-activity {
-      background-color: #ffcc00 !important;
-      border-radius: 50%;
-      font-weight: bold;
-      color: black !important;
+    .nav-btn, .today-btn {
+      border:1px solid #d1d5db; background:#fff; padding:8px 10px; border-radius:999px; cursor:pointer;
     }
+    .nav-btn:disabled { opacity:.5; cursor:not-allowed; }
+    label { font-weight:600; }
+    select { padding: 6px 10px; font-size:14px; border:1px solid #d1d5db; border-radius:8px; background:#fff; }
 
-    .selected-week {
-      background-color: #66b3ff !important;
-      color: white !important;
-      border-radius: 50%;
-      font-weight: bold;
-    }
+    /* Logos solo en web (ocultos en impresión y en pantallas muy pequeñas) */
+    .logo { height:150px; width:auto; object-fit:contain; pointer-events:none; user-select:none; }
+    @media (max-width: 520px) { .left, .right { display:none; } }
+    @media print { .left, .right { display:none !important; } }
 
+    .days { margin-top: 8px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+    .day { padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 12px; cursor: pointer; transition: transform .05s ease, box-shadow .1s ease; background:#fff; }
+    .day:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.05); }
+    .day b { display:block; margin-bottom: 6px; font-size: 14px; }
+    .day .date { color:#374151; margin-bottom: 8px; font-size: 13px;}
+    .muted { color:#6b7280; font-size:12px; grid-column: 1 / -1; }
+    .preview { display:flex; flex-direction:column; gap:6px; }
+    .activity-line { display:flex; gap:8px; align-items:flex-start; font-size: 13px; }
+    .time { flex:0 0 auto; font-variant-numeric: tabular-nums; color:#6b7280; min-width:44px; text-align:right; }
+    .title { flex:1 1 auto; }
+    .more { color:#6b7280; font-size:12px; margin-top:4px; }
+    .badge { display:inline-block; background:#eef2ff; color:#3730a3; font-size:11px; padding:2px 6px; border-radius:999px; margin-left:6px;}
+
+    /* Modal */
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; padding:16px; }
+    .modal { background:#fff; border-radius:14px; max-width:880px; width:100%; max-height:85vh; overflow:auto; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+    .modal header { padding:16px 20px; border-bottom:1px solid #e5e7eb; position:sticky; top:0; background:#fff; z-index:2; display:flex; justify-content:space-between; align-items:center; }
+    .modal h3 { margin:0; font-size:16px; }
+    .modal .content { padding:16px 20px; display:flex; flex-direction:column; gap:10px; }
+    .detail-item { border:1px solid #e5e7eb; border-radius:12px; padding:12px; background:#fff; }
+    .detail-head { display:grid; grid-template-columns: 72px 64px 1fr; align-items:center; gap:12px; margin-bottom:8px; }
+    .activity-logo { width:100px; height:100px; border-radius:15px; object-fit:cover; }
+    .detail-time { font-variant-numeric: tabular-nums; color:#6b7280; text-align:right; }
+    .detail-title { font-weight:700; }
+    .pill { display:inline-block; font-size:11px; background:#ecfeff; color:#0e7490; padding:2px 8px; border-radius:999px; margin-left:6px; }
+    .kv { display:grid; grid-template-columns: 180px 1fr; gap:6px 12px; margin-top:8px; }
+    .kv dt { color:#374151; font-weight:600; }
+    .kv dd { margin:0; color:#111827; }
+    .empty { color:#6b7280; font-style:italic; }
+    .footer-note { color:#6b7280; font-size:12px; padding:8px 20px 16px; }
+    .close-btn { border:0; background:#f3f4f6; padding:8px 10px; border-radius:8px; cursor:pointer; }
   </style>
 </head>
 <body>
+  <div class="topbar">
+    <div class="left">
+      <img class="logo" src="Imagenes/LogoConquisAventureros.jpg" alt="Conquistadores y Aventureros" />
+    </div>
 
-<header>
-  <h1>Calendario de Actividades</h1>
-  <h1>Club Baruch</h1>
-</header>
+    <div class="center" role="group" aria-label="Navegación por semanas">
+      <button id="prevWeek" class="nav-btn" title="Semana anterior">⟵</button>
+      <button id="todayBtn" class="today-btn" title="Volver a hoy">Volver a hoy</button>
+      <label for="weekSelect">Semana:</label>
+      <select id="weekSelect" aria-label="Selector de semana"></select>
+      <button id="nextWeek" class="nav-btn" title="Semana siguiente">⟶</button>
+    </div>
 
-<div class="controls">
-  <button onclick="changeWeek(-1)">⬅ Semana anterior</button>
-  <div id="flatpickr" class="calendar-picker"></div>
-  <button onclick="changeWeek(1)">Semana siguiente ➡</button>
-</div>
+    <div class="right">
+      <img class="logo" src="Imagenes/LogoClubBaruch.png" alt="Club Baruch" />
+    </div>
+  </div>
 
-<div class="week-range" id="weekRange"></div>
-<div class="calendar" id="calendarContainer"></div>
+  <div id="days" class="days"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
-<script>
-  const activities = [
-    { date: '2025-08-03', title: '10:00 - Clases Normales', description: 'Encargado: Cada Club<br>Lugar: Salón<br>Oficial del día: OD: Directora<br>Dirección: <a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', image: 'Imagenes/LogoConquisAventureros.jpg' },
-	  { date: '2025-08-10', title: '10:00 - Clases Normales', description: 'Encargado: Cada Club<br>Lugar: Salón<br>Oficial del día: OD: Conquis<br>Dirección: <a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', image: 'Imagenes/LogoConquisAventureros.jpg' },
-    { date: '2025-08-17', title: 'LIBRE', description: 'Día Libre', image: 'Imagenes/LogoConquisAventureros.jpg' },
-    { date: '2025-08-23', title: '??:?? - Basta de Silencio', description: 'Encargado: Departamento de la Mujer<br>Lugar: Iglesia<br>Dirección: <a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', image: 'Imagenes/LogoConquisAventureros.jpg' },   
-    { date: '2025-08-24', title: '10:00 - Clases Normales', description: 'Actividad:<br>- Especialidad CICLISMO I<br>- Instrucción de NUDOS Y AMARRAS<br>Encargado: Cada Club<br>Lugar: Salón<br>Oficial del día: --<br>Dirección: <a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', image: 'Imagenes/LogoConquisAventureros.jpg' },
-    { date: '2025-08-31', title: '??:?? - Salida MIRADOR DE VOLCANES', description: 'Actividad: Salida Mirador Los Volcanes<br>Encargado: Cada Club<br>Lugar: Salón<br>Oficial del día: --<br>Dirección: <br> <a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a><br><a href="https://maps.app.goo.gl/NnbfMTTMPyNLXBgk8" target="_blank">Mirador Volcanes</a>', image: 'Imagenes/LogoConquisAventureros.jpg' },
-  
-    { date: '2025-09-10', title: 'Semana del Pañolín de Conquistadores', description: 'Encargado: Director<br>Lugar: Salón', image: 'Imagenes/LogoConquisAventureros.jpg' },
-    { date: '2025-09-11', title: 'Semana del Pañolín de Conquistadores', description: 'Encargado: Director<br>Lugar: Salón', image: 'Imagenes/LogoConquisAventureros.jpg' },
-    { date: '2025-09-12', title: 'Semana del Pañolín de Conquistadores', description: 'Encargado: Director<br>Lugar: Salón', image: 'Imagenes/LogoConquisAventureros.jpg' },
-    { date: '2025-09-13', title: 'Semana del Pañolín de Conquistadores', description: 'Encargado: Director<br>Lugar: Salón', image: 'Imagenes/LogoConquisAventureros.jpg' },
-    { date: '2025-09-07', title: '10:00 - Clases Normales', description: 'Actividad:<br>- Especialidad CICLISMO I<br>- Instrucción de NUDOS Y AMARRAS<br>Encargado: Cada Club<br>Lugar: Salón<br>Oficial del día: --<br>Dirección: <a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', image: 'Imagenes/LogoConquisAventureros.jpg' },
-    { date: '2025-09-13', title: '09:30 - Día del Conquistador - Ceremonia de Investidura', description: 'Encargado: Director<br>Lugar: Iglesia<br>Dirección: <a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', image: 'Imagenes/LogoConquisAventureros.jpg' },
-    { date: '2025-09-14', title: '10:00 - Fiestas Patrias', description: 'Encargado: Directores<br>Lugar: Patio Iglesia<br>Oficial del día: OD: Conquis<br>Dirección: <a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', image: 'Imagenes/LogoConquisAventureros.jpg' },
-    { date: '2025-09-21', title: 'LIBRE', description: 'Día Libre', image: 'Imagenes/LogoConquisAventureros.jpg' },
-    { date: '2025-09-27', title: '??:?? - Comparte tu pan', description: 'Por definir', image: 'Imagenes/LogoConquisAventureros.jpg' },
-    { date: '2025-09-28', title: '10:00 - Clases Normales', description: 'Actividad:<br>- Especialidad CICLISMO I: Cicletada a Malalche<br>Lugar: Malalche', image: 'Imagenes/LogoConquisAventureros.jpg' }
-  ];
+  <!-- Modal -->
+  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div role="dialog" aria-modal="true" aria-labelledby="modalTitle" class="modal">
+      <header>
+        <h3 id="modalTitle">Actividades</h3>
+        <button class="close-btn" id="modalClose" title="Cerrar">Cerrar ✕</button>
+      </header>
+      <div class="content" id="modalContent"></div>
+      <div class="footer-note">Las actividades sin hora se muestran al final.</div>
+    </div>
+  </div>
 
+  <script>
+    // ======= Datos de ejemplo (con campos extra) =======
+    const activitiesData = [
+		{ date:'2025-08-03', time:'10:00', title:'Clases Normales', description:'', encargado:'Cada Club', oficial:'OD: Directora', lugar:'', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img: 'Imagenes/LogoConquisAventureros.jpg'},
+		{ date:'2025-08-10', time:'10:00', title:'Clases Normales', description:'', encargado:'Cada Club', oficial:'OD: Conquis', lugar:'Salón', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+		{ date:'2025-08-17', time:'', title:'LIBRE', description:'Día Libre', encargado:'', oficial:'', lugar:'', direccion:'', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+		{ date:'2025-08-23', time:'10:00', title:'Basta de Silencio', description:'', encargado:'Departamento de la Mujer', oficial:'', lugar:'Iglesia', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/LogoIglesia.png'},
+		{ date:'2025-08-24', time:'10:00', title:'Clases Normales', description:'- Especialidad CICLISMO I<br>- Instrucción de NUDOS Y AMARRAS', encargado:'Cada Club', oficial:'', lugar:'Salón', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+		{ date:'2025-08-31', time:'10:00', title:'Salida MIRADOR DE VOLCANES', description:'Salida Mirador Los Volcanes', encargado:'Cada Club', oficial:'', lugar:'Salón', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a><br><a href="https://maps.app.goo.gl/NnbfMTTMPyNLXBgk8" target="_blank">Mirador Volcanes</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'}
+    ];
 
+    // ======= Utilidades de fecha (parser LOCAL) =======
+    const atNoon = d => { const x = new Date(d); x.setHours(12,0,0,0); return x; };
+    const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return atNoon(x); };
+    const startOfWeekSunday = d => { const x = atNoon(d); return addDays(x, -x.getDay()); }; // 0=Dom
+    const endOfWeekSaturday = d => addDays(startOfWeekSunday(d), 6);
+    const toISODate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const fromISODateLocal = s => { const [y,m,d]=s.split('-').map(Number); return atNoon(new Date(y,(m||1)-1,d||1)); };
+    const daysNames = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+    const formatDMY = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
 
-  let currentDate = new Date();
-  const activityDates = activities.map(a => a.date);
-
-  flatpickr("#flatpickr", {
-    defaultDate: currentDate,
-    locale: { ...flatpickr.l10ns.es, firstDayOfWeek: 0 }, // ✅ domingo primero
-    inline: true,
-    disableMobile: true,
-    onChange: function(selectedDates, _, fp) {
-      if (selectedDates.length > 0) {
-        currentDate = selectedDates[0];
-        updateCalendar();
+    // ======= Semanas ±N respecto a la actual =======
+    function generateWeeksAroundCurrent(range) {
+      const today = atNoon(new Date());
+      const currentSunday = startOfWeekSunday(today);
+      const start = addDays(currentSunday, -7 * range);
+      const end = addDays(currentSunday, 7 * range);
+      const weeks = [];
+      for (let sunday = start; sunday <= end; sunday = addDays(sunday, 7)) {
+        weeks.push({ start: sunday, end: endOfWeekSaturday(sunday) });
       }
-      highlightActivityDays(fp);
-      highlightSelectedWeek(fp, currentDate);
-    },
-    onReady: function(_, __, fp) {
-      highlightActivityDays(fp);
-      highlightSelectedWeek(fp, currentDate);
-    },
-    onMonthChange: function(_, __, fp) {
-      highlightActivityDays(fp);
-      highlightSelectedWeek(fp, currentDate);
-    },
-    onYearChange: function(_, __, fp) {
-      highlightActivityDays(fp);
-      highlightSelectedWeek(fp, currentDate);
+      return { weeks, currentSunday };
     }
-  });
 
-  function highlightActivityDays(fp) {
-    const days = fp.days.childNodes;
-    days.forEach(dayElem => {
-      const dateStr = dayElem.dateObj ? formatDate(dayElem.dateObj) : null;
-      dayElem.classList.remove("has-activity");
-      if (dateStr && activityDates.includes(dateStr)) {
-        dayElem.classList.add("has-activity");
+    // ======= Combo con formato "Del dd/mm/aaaa al dd/mm/aaaa" =======
+    function populateWeekSelect(selectEl, range) {
+      selectEl.innerHTML = '';
+      const { weeks, currentSunday } = generateWeeksAroundCurrent(range);
+      weeks.forEach(({start, end}) => {
+        const opt = document.createElement('option');
+        opt.value = toISODate(start);
+        opt.textContent = `Del ${formatDMY(start)} al ${formatDMY(end)}`;
+        selectEl.appendChild(opt);
+      });
+      selectEl.value = toISODate(currentSunday);
+    }
+
+    // ======= Indexar actividades por fecha =======
+    function indexActivities(data) {
+      const map = new Map();
+      for (const a of data) {
+        const key = a.date;
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(a);
       }
-    });
-  }
+      return map;
+    }
 
-  function highlightSelectedWeek(fp, baseDate) {
-    const start = getStartOfWeek(baseDate);
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
+    const hasTime = t => !!String(t ?? '').trim();
+    const fmtTime = t => hasTime(t) ? t : '—';
+    const safe = s => String(s ?? '').trim();
 
-    const days = fp.days.childNodes;
-    days.forEach(dayElem => {
-      const date = dayElem.dateObj;
-      dayElem.classList.remove("selected-week");
-      if (date >= start && date <= end) {
-        dayElem.classList.add("selected-week");
-      }
-    });
-  }
+    // ======= Estado / elementos =======
+    const select = document.getElementById('weekSelect');
+    const daysGrid = document.getElementById('days');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modalContent = document.getElementById('modalContent');
+    const modalClose = document.getElementById('modalClose');
+    const prevWeekBtn = document.getElementById('prevWeek');
+    const nextWeekBtn = document.getElementById('nextWeek');
+    const todayBtn = document.getElementById('todayBtn');
 
-  function getStartOfWeek(date) {
-    const d = new Date(date);
-    const day = d.getDay(); // 0 = domingo
-    const diff = d.getDate() - day; // domingo como inicio
-    return new Date(d.setDate(diff));
-  }
+    let actIndex = indexActivities(activitiesData);
 
-  /*function formatDate(date) {
-    return date.toISOString().split('T')[0];
-  }
-  */
-function formatDate(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}  
+    // ======= Render de tarjetas (solo días con actividades) =======
+    function renderDays(container, weekStartISO) {
+      const start = fromISODateLocal(weekStartISO);
+      container.innerHTML = '';
 
-  function formatReadableDate(date) {
-    return date.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-  }
+      let visibleCount = 0;
+      for (let i = 0; i < 7; i++) {
+        const d = addDays(start, i);
+        const iso = toISODate(d);
+        const list = (actIndex.get(iso) || []).slice();
 
-  function formatShortDate(date) {
-    return date.toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' });
-  }
+        if (list.length === 0) continue; // ocultar días sin actividades
 
-  function updateWeekRange() {
-    const start = getStartOfWeek(currentDate);
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-    document.getElementById('weekRange').textContent = 
-      `Semana: ${formatShortDate(start)} – ${formatShortDate(end)}`;
-  }
-
-  function updateCalendar() {
-    const startOfWeek = getStartOfWeek(currentDate);
-    const calendar = document.getElementById('calendarContainer');
-    calendar.innerHTML = '';
-    updateWeekRange();
-
-    for (let i = 0; i < 7; i++) {
-      const day = new Date(startOfWeek);
-      day.setDate(startOfWeek.getDate() + i);
-      const dayStr = formatDate(day);
-      const dayActivities = activities.filter(a => a.date === dayStr);
-
-      if (dayActivities.length > 0) {
-        const group = document.createElement('div');
-        group.className = 'day-group';
-
-        const header = document.createElement('div');
-        header.className = 'date-header';
-        header.textContent = formatReadableDate(day);
-        group.appendChild(header);
-
-        const activityContainer = document.createElement('div');
-        activityContainer.className = 'activities';
-
-        dayActivities.forEach(a => {
-          const act = document.createElement('div');
-          act.className = 'activity';
-          act.innerHTML = `
-            <img src="${a.image}" alt="${a.title}">
-            <div class="activity-info">
-              <div class="activity-title">${a.title}</div>
-              <div class="activity-description">${a.description}</div>
-            </div>
-          `;
-          activityContainer.appendChild(act);
+        // Orden: con hora asc y sin hora al final
+        list.sort((a, b) => {
+          const aHas = hasTime(a.time), bHas = hasTime(b.time);
+          if (aHas && bHas) return a.time.localeCompare(b.time);
+          if (aHas && !bHas) return -1;
+          if (!aHas && bHas) return 1;
+          return 0;
         });
 
-        group.appendChild(activityContainer);
-        calendar.appendChild(group);
+        const dow = d.getDay();
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'day';
+        card.setAttribute('data-date', iso);
+        card.innerHTML = `
+          <b>${daysNames[dow]} <span class="badge">${list.length} act.</span></b>
+          <div class="date">${formatDMY(d)}</div>
+          <div class="preview">
+            ${list.slice(0,2).map(a => `
+              <div class="activity-line">
+                <div class="time">${fmtTime(a.time)}</div>
+                <div class="title">${safe(a.title)}</div>
+              </div>
+            `).join('')}
+            ${list.length > 2 ? `<div class="more">+${list.length - 2} más</div>` : ``}
+          </div>
+        `;
+        container.appendChild(card);
+        visibleCount++;
       }
+
+      if (visibleCount === 0) {
+        const info = document.createElement('div');
+        info.className = 'muted';
+        info.textContent = 'Esta semana no tiene actividades.';
+        container.appendChild(info);
+      }
+
+      // Habilitar/deshabilitar navegación según posición
+      const idx = select.selectedIndex;
+      prevWeekBtn.disabled = idx <= 0;
+      nextWeekBtn.disabled = idx >= select.options.length - 1;
     }
-  }
 
-  function changeWeek(offset) {
-    currentDate.setDate(currentDate.getDate() + offset * 7);
-    updateCalendar();
-    const fp = document.querySelector("#flatpickr")._flatpickr;
-    fp.setDate(currentDate, true);
-    highlightActivityDays(fp);
-    highlightSelectedWeek(fp, currentDate);
-  }
+    // ======= Modal con imagen de logo y campos extra =======
+    function openModalForDate(isoDate) {
+      const d = fromISODateLocal(isoDate);
+      const list = (actIndex.get(isoDate) || []).slice();
 
-  updateCalendar();
-</script>
+      list.sort((a, b) => {
+        const aHas = hasTime(a.time), bHas = hasTime(b.time);
+        if (aHas && bHas) return a.time.localeCompare(b.time);
+        if (aHas && !bHas) return -1;
+        if (!aHas && bHas) return 1;
+        return 0;
+      });
 
+      modalContent.innerHTML = '';
+      if (list.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = 'Sin actividades para este día.';
+        modalContent.appendChild(empty);
+      } else {
+        for (const a of list) {
+          const item = document.createElement('div');
+          item.className = 'detail-item';
+          item.innerHTML = `
+            <div class="detail-head">
+              <img class="activity-logo" src="${safe(a.img)}" />
+              <div class="detail-time">${fmtTime(a.time)}</div>
+              <div class="detail-title">${safe(a.title)}${safe(a.type) ? `<span class="pill">${safe(a.type)}</span>` : ''}</div>
+            </div>
+            <dl class="kv">
+              <dt>Actividad (detalle)</dt><dd>${safe(a.description) || '—'}</dd>
+              <dt>Encargado</dt><dd>${safe(a.encargado) || '—'}</dd>
+              <dt>Oficial del día</dt><dd>${safe(a.oficial) || '—'}</dd>
+              <dt>Lugar</dt><dd>${safe(a.lugar) || '—'}</dd>
+              <dt>Dirección</dt><dd>${safe(a.direccion) || '—'}</dd>
+              <dt>Otro</dt><dd>${safe(a.otro) || '—'}</dd>
+            </dl>
+          `;
+          modalContent.appendChild(item);
+        }
+      }
+
+      document.getElementById('modalTitle').textContent =
+        `Actividades — ${daysNames[d.getDay()]} ${formatDMY(d)}`;
+      modalBackdrop.style.display = 'flex';
+      modalBackdrop.setAttribute('aria-hidden','false');
+      modalClose.focus();
+    }
+
+    function closeModal() {
+      modalBackdrop.style.display = 'none';
+      modalBackdrop.setAttribute('aria-hidden','true');
+    }
+
+    // ======= Eventos =======
+    modalClose.addEventListener('click', closeModal);
+    document.getElementById('modalBackdrop').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    // Cambio en combo
+    select.addEventListener('change', e => renderDays(daysGrid, e.target.value));
+
+    // Click en día => abrir modal
+    daysGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('.day');
+      if (btn) openModalForDate(btn.getAttribute('data-date'));
+    });
+
+    // Navegación anterior/siguiente
+    prevWeekBtn.addEventListener('click', () => {
+      const i = select.selectedIndex;
+      if (i > 0) { select.selectedIndex = i - 1; select.dispatchEvent(new Event('change')); }
+    });
+    nextWeekBtn.addEventListener('click', () => {
+      const i = select.selectedIndex;
+      if (i < select.options.length - 1) { select.selectedIndex = i + 1; select.dispatchEvent(new Event('change')); }
+    });
+
+    // Volver a hoy
+    todayBtn.addEventListener('click', () => {
+      const today = atNoon(new Date());
+      const currentSunday = startOfWeekSunday(today);
+      const value = toISODate(currentSunday);
+      const opt = Array.from(select.options).find(o => o.value === value);
+      if (opt) {
+        select.value = value;
+        select.dispatchEvent(new Event('change'));
+      } else {
+        // Si por alguna razón no existe, repoblar y seleccionar
+        populateWeekSelect(select, 26);
+        select.value = value;
+        select.dispatchEvent(new Event('change'));
+      }
+    });
+
+    // ======= Init =======
+    populateWeekSelect(select, 26); // ±26 semanas
+    renderDays(daysGrid, select.value);
+  </script>
 </body>
 </html>
