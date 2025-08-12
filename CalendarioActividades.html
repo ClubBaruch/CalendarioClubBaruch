@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Semanas con actividades (Dom → Sáb)</title>
+  <title>Calendario Club Baruch</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root { --brand:#06b6d4; }
@@ -24,7 +24,7 @@
 .center {
   display: grid;
   /* 1ª fila: [Anterior] [Etiqueta] [Combo] [Siguiente]  */
-  grid-template-columns: auto auto auto auto;
+  grid-template-columns: auto auto auto;
   grid-template-rows: auto auto; /* 2ª fila: “Volver a hoy” */
   align-items: center;
   justify-content: center;
@@ -36,9 +36,8 @@
 }
 
 #prevWeek { grid-column: 1; grid-row: 1; }
-.center label[for="weekSelect"] { grid-column: 2; grid-row: 1; justify-self: end; }
-#weekSelect { grid-column: 3; grid-row: 1; }
-#nextWeek { grid-column: 4; grid-row: 1; }
+#weekSelect { grid-column: 2; grid-row: 1; }
+#nextWeek { grid-column: 3; grid-row: 1; }
 
 /* Botón “Volver a hoy” en la 2ª fila, centrado y a lo ancho */
 #todayBtn {
@@ -80,13 +79,12 @@
     .modal header { padding:16px 20px; border-bottom:1px solid #e5e7eb; position:sticky; top:0; background:#fff; z-index:2; display:flex; justify-content:space-between; align-items:center; }
     .modal h3 { margin:0; font-size:16px; }
     .modal .content { padding:16px 20px; display:flex; flex-direction:column; gap:10px; }
-    .detail-item { border:1px solid #e5e7eb; border-radius:12px; padding:12px; background:#fff; }
-    .detail-head { display:grid; grid-template-columns: 72px 64px 1fr; align-items:center; gap:12px; margin-bottom:8px; }
+    .detail-item { border:1px solid #e5e7eb; border-radius:12px; padding:10px; background:#fff; }
+    .detail-head { display:grid; grid-template-columns: 100px 1fr; align-items:center; gap:12px; margin-bottom:8px; }
     .activity-logo { width:100px; height:100px; border-radius:15px; object-fit:cover; }
-    .detail-time { font-variant-numeric: tabular-nums; color:#6b7280; text-align:right; }
     .detail-title { font-weight:700; }
     .pill { display:inline-block; font-size:11px; background:#ecfeff; color:#0e7490; padding:2px 8px; border-radius:999px; margin-left:6px; }
-    .kv { display:grid; grid-template-columns: 180px 1fr; gap:6px 12px; margin-top:8px; }
+    .kv { display:grid; grid-template-columns: 120px 1fr; gap:6px 12px; margin-top:8px; }
     .kv dt { color:#374151; font-weight:600; }
     .kv dd { margin:0; color:#111827; }
     .empty { color:#6b7280; font-style:italic; }
@@ -103,7 +101,6 @@
     <div class="center" role="group" aria-label="Navegación por semanas">
       <button id="prevWeek" class="nav-btn" title="Semana anterior">⟵</button>
       <button id="todayBtn" class="today-btn" title="Volver a hoy">Volver a hoy</button>
-      <label for="weekSelect">Semana:</label>
       <select id="weekSelect" aria-label="Selector de semana"></select>
       <button id="nextWeek" class="nav-btn" title="Semana siguiente">⟶</button>
     </div>
@@ -229,8 +226,8 @@
         card.className = 'day';
         card.setAttribute('data-date', iso);
         card.innerHTML = `
-          <b>${daysNames[dow]} <span class="badge">${list.length} act.</span></b>
-          <div class="date">${formatDMY(d)}</div>
+          <b>${daysNames[dow]} ${formatDMY(d)}</b>
+          <br>
           <div class="preview">
             ${list.slice(0,2).map(a => `
               <div class="activity-line">
@@ -284,11 +281,11 @@
           item.innerHTML = `
             <div class="detail-head">
               <img class="activity-logo" src="${safe(a.img)}" />
-              <div class="detail-time">${fmtTime(a.time)}</div>
               <div class="detail-title">${safe(a.title)}${safe(a.type) ? `<span class="pill">${safe(a.type)}</span>` : ''}</div>
             </div>
             <dl class="kv">
-              <dt>Actividad (detalle)</dt><dd>${safe(a.description) || '—'}</dd>
+			  <dt>Hora</dt><dd>${fmtTime(a.time)}</dd>
+              <dt>Descripción</dt><dd>${safe(a.description) || '—'}</dd>
               <dt>Encargado</dt><dd>${safe(a.encargado) || '—'}</dd>
               <dt>Oficial del día</dt><dd>${safe(a.oficial) || '—'}</dd>
               <dt>Lugar</dt><dd>${safe(a.lugar) || '—'}</dd>
