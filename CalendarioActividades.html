@@ -121,6 +121,18 @@
     .empty { color:#6b7280; font-style:italic; }
     .footer-note { color:#6b7280; font-size:12px; padding:8px 20px 16px; }
     .close-btn { border:0; background:#f3f4f6; padding:8px 10px; border-radius:8px; cursor:pointer; }
+
+.download-note{
+  margin: 8px 0 12px;
+  text-align: center;
+  color: #6b7280;     /* gris suave */
+  font-size: 13px;
+}
+.download-note a{
+  color: #0ea5b7;     /* calipso/brand */
+  text-decoration: underline;
+}
+@media print { .download-note { display:none; } }    
   </style>
 </head>
 <body>
@@ -145,8 +157,15 @@
       <img class="logo" src="Imagenes/LogoClubBaruch.png" alt="Club Baruch" />
     </div>
   </div>
+  <p class="download-note">
+    o también puedes descargar el calendario general
+    <a href="PLANIFCONQUISTADORES2025.pdf" download target="_blank" rel="noopener">aquí</a>.
+  </p>  
 
   <div id="days" class="days"></div>
+  
+
+
 
   <!-- Modal -->
   <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
@@ -162,178 +181,39 @@
 
   <script>
     // ======= Datos de ejemplo (con campos extra) =======
-const activitiesData = [	
-{ date:'2025-08-03', time:'10:00', 
-					 title:'Clases Normales', 
-					 description:'', 
-					 encargado:'Cada Club', 
-					 oficial:'OD: Directora', 
-					 lugar:'', 
-					 direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', 
-					 otro:'', 
-					 type:'', 
-					 img: 'Imagenes/LogoConquisAventureros.jpg'},
-{ date:'2025-08-10', time:'10:00', 
-					 title:'Clases Normales', 
-					 description:'', 
-					 encargado:'Cada Club', 
-					 oficial:'OD: Conquis', 
-					 lugar:'Salón', 
-					 direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', 
-					 otro:'', 
-					 type:'', 
-					 img:'Imagenes/LogoConquisAventureros.jpg'},
-{ date:'2025-08-17', time:'', 
-					 title:'LIBRE', 
-					 description:'Día Libre', 
-					 encargado:'', 
-					 oficial:'', 
-					 lugar:'', 
-					 direccion:'', 
-					 otro:'', 
-					 type:'', 
-					 img:'Imagenes/LogoConquisAventureros.jpg'},
-{ date:'2025-08-23', time:'10:00', 
-					 title:'Basta de Silencio', 
-					 description:'', 
-					 encargado:'Departamento de la Mujer', 
-					 oficial:'', 
-					 lugar:'Iglesia', 
-					 direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', 
-					 otro:'', 
-					 type:'', 
-					 img:'Imagenes/LogoIglesia.png'},
-{ date:'2025-08-24', time:'10:00', 
-					 title:'Clases Normales', 
-					 description:'- Especialidad CICLISMO I<br>- Instrucción de NUDOS Y AMARRAS', 
-					 encargado:'Cada Club', 
-					 oficial:'', 
-					 lugar:'Salón', 
-					 direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', 
-					 otro:'', 
-					 type:'', 
-					 img:'Imagenes/LogoConquisAventureros.jpg'},
-{ date:'2025-08-31', time:'10:00', 
-					 title:'Salida MIRADOR DE VOLCANES', 
-					 description:'Salida Mirador Los Volcanes', 
-					 encargado:'Cada Club', 
-					 oficial:'', 
-					 lugar:'Salón', 
-					 direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a><br><a href="https://maps.app.goo.gl/NnbfMTTMPyNLXBgk8" target="_blank">Mirador Volcanes</a>', 
-					 otro:'', 
-					 type:'', 
-					 img:'Imagenes/LogoConquisAventureros.jpg'},	
-{ date:'2025-09-10', time:'', 
-					 title:'Semana del Pañolín de Conquistadores', 
-					 description:'', 
-					 encargado:'Director', 
-					 oficial:'', 
-					 lugar:'', 
-					 direccion:'', 
-					 otro:'', 
-					 type:'', 
-					 img:'Imagenes/LogoConquisAventureros.jpg'},
-{ date:'2025-09-11', time:'', 
-					 title:'Semana del Pañolín de Conquistadores', 
-					 description:'', 
-					 encargado:'Director', 
-					 oficial:'', 
-					 lugar:'', 
-					 direccion:'', 
-					 otro:'', 
-					 type:'', 
-					 img:'Imagenes/LogoConquisAventureros.jpg'},
-{ date:'2025-09-12', time:'', 
-					 title:'Semana del Pañolín de Conquistadores', 
-					 description:'', 
-					 encargado:'Director', 
-					 oficial:'', 
-					 lugar:'', 
-					 direccion:'', 
-					 otro:'', 
-					 type:'', 
-					 img:'Imagenes/LogoConquisAventureros.jpg'},
-{ date:'2025-09-13', time:'', 
-					 title:'Semana del Pañolín de Conquistadores', 
-					 description:'', 
-					 encargado:'Director', 
-					 oficial:'', 
-					 lugar:'', 
-					 direccion:'', 
-					 otro:'', 
-					 type:'', 
-					 img:'Imagenes/LogoConquisAventureros.jpg'},
-{ date:'2025-09-07', time:'10:00', 
-					 title:'Especialidades', 
-					 description:'- Especialidad CICLISMO I<br>- Instrucción de NUDOS Y AMARRAS', 
-					 encargado:'Cada Club', 
-					 oficial:'', 
-					 lugar:'Salón', 
-					 direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', 
-					 otro:'', 
-					 type:'', 
-					 img:'Imagenes/LogoConquisAventureros.jpg'},
-{ date:'2025-09-13', time:'09:30', 
-					 title:'Día del conquistador', 
-					 description:'Día del conquistador', 
-					 encargado:'Director', 
-					 oficial:'', 
-					 lugar:'', 
-					 direccion:'', 
-					 otro:'', 
-					 type:'', 
-					 img:''},
-{ date:'2025-09-13', time:'??:??', 
-					 title:'Ceremonia de investidura', 
-					 description:'Día del conquistador', 
-					 encargado:'Director', 
-					 oficial:'', 
-					 lugar:'Salón', 
-					 direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>',  
-					 otro:'', 
-					 type:'', 
-					 img:''},			 
-{ date:'2025-09-14', time:'10:00', 
-					 title:'Fiestas Patrias', 
-					 description:'', 
-					 encargado:'Directores', 
-					 oficial:'OD: Conquis', 
-					 lugar:'Patio Iglesia', 
-					 direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>',  
-					 otro:'', 
-					 type:'', 
-					 img:''},
-{ date:'2025-09-21', time:'', 
-					 title:'LIBRE', 
-					 description:'', 
-					 encargado:'', 
-					 oficial:'', 
-					 lugar:'', 
-					 direccion:'', 
-					 otro:'', 
-					 type:'', 
-					 img:'Imagenes/LogoConquisAventureros.jpg'},
-{ date:'2025-09-27', time:'??:??', 
-					 title:'Comparte tu pan', 
-					 description:'', 
-					 encargado:'', 
-					 oficial:'', 
-					 lugar:'Por definir', 
-					 direccion:'', 
-					 otro:'', 
-					 type:'', 
-					 img:'Imagenes/LogoConquisAventureros.jpg'},
-{ date:'2025-09-28', time:'10:00', 
-					 title:'Especialidad', 
-					 description:'Especialidad CICLISMO I: Cicletada a Malalche', 
-					 encargado:'', 
-					 oficial:'', 
-					 lugar:'Malalche', 
-					 direccion:'', 
-					 otro:'', 
-					 type:'', 
-					 img:'Imagenes/LogoConquisAventureros.jpg'},
-    ];
+const activitiesData = [
+{date:'2025-08-03', time:'10:00', title:'Clases normales', description:'Clases normales', encargado:'Cada club', oficial:'OD: Directora', lugar:'Salón', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-08-10', time:'10:00', title:'Clases normales', description:'Clases normales', encargado:'Cada club', oficial:'OD: Directora', lugar:'Salón', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-08-17', time:'', title:'LIBRE', description:'LIBRE', encargado:'', oficial:'', lugar:'', direccion:'', otro:'', type:'', img:'Imagenes/DiaLibre.png'},
+{date:'2025-08-23', time:'??:??', title:'Basta de Silencio', description:'Basta de Silencio', encargado:'Departamento de la mujer, pero debemos apoyar.', oficial:'', lugar:'Iglesia', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/LogoIglesia.png'},
+{date:'2025-08-24', time:'10:00', title:'Especialidades', description:'Especialidad CILCLISMO I<br>Instrucción de NUDOS Y AMARRAS', encargado:'Cada club', oficial:'', lugar:'Salón', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-08-31', time:'??:??', title:'SALIDA', description:'SALIDA MIRADOR DE VOLCANES', encargado:'Cada club', oficial:'OD: Conquis', lugar:'Salón', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a><br><a href="https://maps.app.goo.gl/NnbfMTTMPyNLXBgk8" target="_blank">Mirador Volcanes</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-09-07', time:'10:00', title:'Especialidades', description:'Especialidad CILCLISMO I<br>Instrucción de NUDOS Y AMARRAS', encargado:'Cada club', oficial:'', lugar:'Salón', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-09-10', time:'', title:'Semana del Pañolín', description:'Semana del Pañolín de Conquistadores', encargado:'Director', oficial:'', lugar:'', direccion:'', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-09-11', time:'', title:'Semana del Pañolín', description:'Semana del Pañolín de Conquistadores', encargado:'Director', oficial:'', lugar:'', direccion:'', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-09-12', time:'', title:'Semana del Pañolín', description:'Semana del Pañolín de Conquistadores', encargado:'Director', oficial:'', lugar:'', direccion:'', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-09-13', time:'17:00', title:'Ceremonia de Investidura', description:'Ceremonia de Investidura', encargado:'Director', oficial:'', lugar:'Salón', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-09-13', time:'9:30', title:'', description:'Día del conquistador', encargado:'Director', oficial:'', lugar:'Iglesia', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-09-13', time:'', title:'Semana del Pañolín', description:'Semana del Pañolín de Conquistadores', encargado:'Director', oficial:'', lugar:'', direccion:'', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-09-14', time:'10:00', title:'Fiestas Patrias', description:'Fiestas Patrias', encargado:'Directores', oficial:'OD: Conquis', lugar:'Patio de la iglesia', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-09-21', time:'', title:'LIBRE', description:'LIBRE', encargado:'', oficial:'', lugar:'', direccion:'', otro:'', type:'', img:'Imagenes/DiaLibre.png'},
+{date:'2025-09-27', time:'??:??', title:'Comparte tu pan', description:'Comparte tu pan', encargado:'', oficial:'', lugar:'', direccion:'TEMUCO (por confirmar)', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-09-28', time:'10:00', title:'Especialidades', description:'Especialidad CILCLISMO I, Cicletada Malalche', encargado:'Cada club', oficial:'', lugar:'Malalche', direccion:'<a href="https://maps.app.goo.gl/emhrBoVDx64EqQ3Y7" target="_blank">IASD Malalche Bajo</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-10-05', time:'10:00', title:'Clases normales', description:'Nudos y Amarras', encargado:'Cada club', oficial:'OD: Conquis', lugar:'Salón', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-10-10', time:'', title:'Campamento', description:'Campamento', encargado:'Director', oficial:'', lugar:'Corrientes Blancas', direccion:'<a href="https://maps.app.goo.gl/GWyCRDthpF8JkB6B7" target="_blank">Corrientes Blancas</a>', otro:'', type:'', img:'Imagenes/CampamentoConquis.png'},
+{date:'2025-10-11', time:'', title:'Campamento', description:'Campamento', encargado:'Director', oficial:'', lugar:'Corrientes Blancas', direccion:'<a href="https://maps.app.goo.gl/GWyCRDthpF8JkB6B7" target="_blank">Corrientes Blancas</a>', otro:'', type:'', img:'Imagenes/CampamentoConquis.png'},
+{date:'2025-10-12', time:'', title:'Campamento', description:'Campamento', encargado:'Director', oficial:'', lugar:'Corrientes Blancas', direccion:'<a href="https://maps.app.goo.gl/GWyCRDthpF8JkB6B7" target="_blank">Corrientes Blancas</a>', otro:'', type:'', img:'Imagenes/CampamentoConquis.png'},
+{date:'2025-10-26', time:'', title:'LIBRE', description:'LIBRE', encargado:'', oficial:'', lugar:'', direccion:'', otro:'', type:'', img:'Imagenes/DiaLibre.png'},
+{date:'2025-11-02', time:'10:00', title:'Clases normales', description:'Clases normales', encargado:'Cada club', oficial:'OD: Vicky', lugar:'Salón', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-11-16', time:'', title:'LIBRE', description:'LIBRE', encargado:'', oficial:'', lugar:'', direccion:'', otro:'', type:'', img:'Imagenes/DiaLibre.png'},
+{date:'2025-11-23', time:'10:00', title:'Clases normales', description:'Clases normales', encargado:'Cada club', oficial:'OD: Directora', lugar:'Salón', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2025-11-30', time:'10:00', title:'CIERRE', description:'CIERRE', encargado:'', oficial:'', lugar:'Salón', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/LogoConquisAventureros.jpg'},
+{date:'2026-01-09', time:'', title:'RALLY LONCOCHE', description:'RALLY LONCOCHE', encargado:'Directores', oficial:'', lugar:'Loncoche', direccion:'', otro:'', type:'', img:'Imagenes/CampamentoConquis.png'},
+{date:'2026-01-10', time:'', title:'RALLY LONCOCHE', description:'RALLY LONCOCHE', encargado:'Directores', oficial:'', lugar:'Loncoche', direccion:'', otro:'', type:'', img:'Imagenes/CampamentoConquis.png'},
+{date:'2026-01-11', time:'', title:'RALLY LONCOCHE', description:'RALLY LONCOCHE', encargado:'Directores', oficial:'', lugar:'Loncoche', direccion:'', otro:'', type:'', img:'Imagenes/CampamentoConquis.png'},
+{date:'2026-01-12', time:'', title:'RALLY LONCOCHE', description:'RALLY LONCOCHE', encargado:'Directores', oficial:'', lugar:'Loncoche', direccion:'<a href="https://maps.app.goo.gl/E63LZB4MPMJLij8f6" target="_blank">Teodoro Schmidt 35</a>', otro:'', type:'', img:'Imagenes/CampamentoConquis.png'},
+];
+
 
     // ======= Utilidades de fecha (parser LOCAL) =======
     const atNoon = d => { const x = new Date(d); x.setHours(12,0,0,0); return x; };
@@ -358,18 +238,41 @@ const activitiesData = [
       return { weeks, currentSunday };
     }
 
-    // ======= Combo con formato "Del dd/mm/aaaa al dd/mm/aaaa" =======
-    function populateWeekSelect(selectEl, range) {
-      selectEl.innerHTML = '';
-      const { weeks, currentSunday } = generateWeeksAroundCurrent(range);
-      weeks.forEach(({start, end}) => {
-        const opt = document.createElement('option');
-        opt.value = toISODate(start);
-        opt.textContent = `Del ${formatDMY(start)} al ${formatDMY(end)}`;
-        selectEl.appendChild(opt);
-      });
-      selectEl.value = toISODate(currentSunday);
-    }
+function populateWeekSelect(selectEl, range) {
+  selectEl.innerHTML = '';
+  const { weeks, currentSunday } = generateWeeksAroundCurrent(range);
+
+  const values = [];
+  for (const { start, end } of weeks) {
+    if (!weekHasActivities(start)) continue;        // ← FILTRO CLAVE
+    const opt = document.createElement('option');
+    opt.value = toISODate(start);
+    opt.textContent = `Del ${formatDMY(start)} al ${formatDMY(end)}`;
+    selectEl.appendChild(opt);
+    values.push(opt.value);
+  }
+
+  // Si no quedaron semanas con actividades
+  if (values.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'No hay semanas con actividades';
+    opt.disabled = true; opt.selected = true;
+    selectEl.appendChild(opt);
+    return;
+  }
+
+  // Seleccionar semana actual o la más cercana con actividades
+  let valueToSelect = toISODate(currentSunday);
+  if (!values.includes(valueToSelect)) {
+    valueToSelect = values.reduce((best, v) => {
+      const diff = Math.abs(fromISODateLocal(v) - currentSunday);
+      const bestDiff = Math.abs(fromISODateLocal(best) - currentSunday);
+      return diff < bestDiff ? v : best;
+    }, values[0]);
+  }
+  selectEl.value = valueToSelect;
+}
 
     // ======= Indexar actividades por fecha =======
     function indexActivities(data) {
@@ -381,6 +284,15 @@ const activitiesData = [
       }
       return map;
     }
+
+    // ¿La semana que empieza en "weekStart" (Date) tiene actividades?
+    function weekHasActivities(weekStart) {
+      for (let i = 0; i < 7; i++) {
+        const iso = toISODate(addDays(weekStart, i));
+        if ((actIndex.get(iso) || []).length > 0) return true;
+      }
+      return false;
+    }    
 
     const hasTime = t => !!String(t ?? '').trim();
     const fmtTime = t => hasTime(t) ? t : '—';
@@ -429,13 +341,13 @@ const activitiesData = [
           <b>${daysNames[dow]} ${formatDMY(d)}</b>
           <br>
           <div class="preview">
-            ${list.slice(0,2).map(a => `
+            ${list.slice(0,5).map(a => `
               <div class="activity-line">
                 <div class="time">${fmtTime(a.time)}</div>
                 <div class="title">${safe(a.title)}</div>
               </div>
             `).join('')}
-            ${list.length > 2 ? `<div class="more">+${list.length - 2} más</div>` : ``}
+            ${list.length > 5 ? `<div class="more">+${list.length - 2} más</div>` : ``}
           </div>
         `;
         container.appendChild(card);
@@ -535,22 +447,23 @@ const activitiesData = [
       if (i < select.options.length - 1) { select.selectedIndex = i + 1; select.dispatchEvent(new Event('change')); }
     });
 
-    // Volver a hoy
-    todayBtn.addEventListener('click', () => {
-      const today = atNoon(new Date());
-      const currentSunday = startOfWeekSunday(today);
-      const value = toISODate(currentSunday);
-      const opt = Array.from(select.options).find(o => o.value === value);
-      if (opt) {
-        select.value = value;
-        select.dispatchEvent(new Event('change'));
-      } else {
-        // Si por alguna razón no existe, repoblar y seleccionar
-        populateWeekSelect(select, 26);
-        select.value = value;
-        select.dispatchEvent(new Event('change'));
-      }
-    });
+todayBtn.addEventListener('click', () => {
+  const currentSunday = startOfWeekSunday(atNoon(new Date()));
+  const values = Array.from(select.options).map(o => o.value).filter(Boolean);
+  if (values.length === 0) return; // no hay semanas con actividades
+
+  let target = toISODate(currentSunday);
+  if (!values.includes(target)) {
+    target = values.reduce((best, v) => {
+      const diff = Math.abs(fromISODateLocal(v) - currentSunday);
+      const bestDiff = Math.abs(fromISODateLocal(best) - currentSunday);
+      return diff < bestDiff ? v : best;
+    }, values[0]);
+  }
+
+  select.value = target;
+  select.dispatchEvent(new Event('change'));
+});
 
     // ======= Init =======
     populateWeekSelect(select, 26); // ±26 semanas
